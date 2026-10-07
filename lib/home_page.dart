@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  static final List<Map<String, String>> noticias = [
+  static final List<Map<String, dynamic>> noticias = [
     {
       'titulo': 'Nova tecnologia promete transformar o mercado',
       'resumo':
@@ -115,6 +115,8 @@ class HomePage extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 12),
                   color: Colors.white,
                   elevation: 0, // remove a sombra
+                  clipBehavior: Clip
+                      .antiAlias, // insere uma mascara e nesse caso resolveu o problema de bordas quadradas aparecendo
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                     side: const BorderSide(color: Color(0xFFCBD2D9)),
@@ -127,22 +129,57 @@ class HomePage extends StatelessWidget {
                         color: const Color(0xFFE4e9EF),
                         child: const Icon(Icons.image_outlined),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.all(12),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Text("Tecnologia"),
-                                SizedBox(
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEFF4F8),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Text(
+                                    noticia['categoria'],
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                const SizedBox(
                                   width: 15,
                                 ),
-                                Text("06/10/2026"),
+                                Text(
+                                  noticia['data'],
+                                  style: const TextStyle(fontSize: 11),
+                                ),
                               ],
                             ),
+                            const SizedBox(
+                              height: 8,
+                            ),
                             Text(
-                              "O governo anunciou um novo pacote de investimentos para melhorar a infraestrutura das escolas.",
+                              noticia['titulo'],
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: Color(0xFF1d2a4a),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              noticia['resumo'],
+                              style: const TextStyle(
+                                //fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: Color(0xFF5B6B79),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
