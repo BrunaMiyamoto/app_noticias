@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:app_noticias/model/noticia.dart';
 import 'package:app_noticias/services/noticia_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -123,7 +125,14 @@ class _HomePageState extends State<HomePage> {
                             width: double.infinity,
                             height: 120,
                             color: const Color(0xFFE4e9EF),
-                            child: const Icon(Icons.image_outlined),
+                            child: noticia.imagem != null
+                                ? Image.network(
+                                    noticia.imagem!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, erro, Stack) =>
+                                        const Icon(Icons.image_outlined),
+                                  )
+                                : const Icon(Icons.image_outlined),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(12),
@@ -141,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
-                                        'Categoria:${noticia.categoriaId}',
+                                        noticia.categoriaNome,
                                         style: const TextStyle(fontSize: 11),
                                       ),
                                     ),
