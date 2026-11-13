@@ -29,10 +29,12 @@ class LoginServices {
       }
 
       if (resposta.statusCode == 401 || resposta.statusCode == 422) {
-        throw Exception('E-mail ou senhas inválidos');
+        //throw Exception('E-mail ou senhas inválidos');
+        throw 'E-mail ou Senha Inválidos';
       }
     } catch (e) {
-      throw Exception("Erro de conexão: $e");
+      //throw Exception("Erro de conexão: $e");
+      throw Exception('$e');
     }
 
     return '';
