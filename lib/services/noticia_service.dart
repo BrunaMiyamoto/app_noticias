@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app_noticias/model/noticia.dart';
+import 'package:app_noticias/services/login_services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 class NoticiaService {
+  final LoginServices _loginServices =
+      LoginServices(); //toda vez que eu chamo um arquivo estou chamando junto as funções desse arquivo, nesse caso o login services
   static const String baseUrl =
       "http://10.0.2.2:8000/api"; //é um caminho, e para que o flutter consiga ler é necessário tracar o ip ao inves do 127 para esse aqui
 
@@ -25,4 +30,95 @@ class NoticiaService {
       throw Exception('não foi possível carregar as noticias');
     }
   }
+
+  Future<void> criarNoticia({
+    required String titulo,
+    required String resumo,
+    required String conteudo,
+    required int categoriaId,
+    File? imagemArquivo,
+  }) async {
+    try {
+      final token = await _loginServices.getToken();
+      if (imagemArquivo != null) {
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse("$baseUrl/noticias"),
+        ); // usaremos esse multipart pq ele permite anexar arquivos
+
+        request.headers['Accept'] = 'application/json';
+        request.headers['Authorization'] = 'bearer $token';
+        request.fields['titulo'] =
+            titulo; //nomes precisam ser iguais ao nomes que estão no laravel
+        request.fields['resumo'] = resumo;
+        request.fields['conteudo'] = conteudo;
+        request.fields['categoria_id'] = categoriaId.toString();
+        request.files.add(
+          await http.MultipartFile.fromPath('imagem', imagemArquivo.path),
+        );
+        //request fields['ativo'] = ativo;
+
+        final resposta = await request
+            .send(); //enviar para a API, manda lá para o laravel
+
+        //print(resposta);//verificar erros
+
+        if (resposta.statusCode != 200 && resposta.statusCode != 201) {
+          throw Exception("Todos os campos são obrigatórios");
+        }
+      } else {
+        throw Exception("Todos os campos são obrigatórios");
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  Future<void> editarNoticia({
+    required int id,
+    required String titulo,
+    required String resumo,
+    required String conteudo,
+    required int categoriaId,
+    File? imagemArquivo,
+  }) async {
+    try {
+      final token = await _loginServices.getToken();
+      if (imagemArquivo != null) {
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse("$baseUrl/noticias/$id"),
+        ); // usaremos esse multipart pq ele permite anexar arquivos
+
+        request.headers['Accept'] = 'application/json';
+        request.headers['Authorization'] = 'bearer $token';
+        request.fields['_method'] =
+            'PUT'; //adicionamos o metodo porque na rota da api usamos o método put para adicionar a noticia
+        request.fields['titulo'] =
+            titulo; //nomes precisam ser iguais ao nomes que estão no laravel
+        request.fields['resumo'] = resumo;
+        request.fields['conteudo'] = conteudo;
+        request.fields['categoria_id'] = categoriaId.toString();
+        request.files.add(
+          await http.MultipartFile.fromPath('imagem', imagemArquivo.path),
+        );
+        //request fields['ativo'] = ativo;
+
+        final resposta = await request
+            .send(); //enviar para a API, manda lá para o laravel
+
+        //print(resposta);//verificar erros
+
+        if (resposta.statusCode != 200 && resposta.statusCode != 201) {
+          throw Exception("Todos os campos são obrigatórios");
+        }
+      } else {
+        throw Exception("Todos os campos são obrigatórios");
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
+
+  Future<void> excluirNoticia() async {}
 }
