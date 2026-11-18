@@ -36,6 +36,7 @@ class NoticiaService {
     required String resumo,
     required String conteudo,
     required int categoriaId,
+    required bool ativo,
     File? imagemArquivo,
   }) async {
     try {
@@ -56,10 +57,15 @@ class NoticiaService {
         request.files.add(
           await http.MultipartFile.fromPath('imagem', imagemArquivo.path),
         );
-        //request fields['ativo'] = ativo;
+        request.fields['ativo'] = ativo ? '1' : '0';
 
         final resposta = await request
             .send(); //enviar para a API, manda lá para o laravel
+
+        final corpoResposta = await resposta.stream
+            .bytesToString(); // bytesToString converte os caracteres em texto
+        print('Status: ${resposta.statusCode}');
+        print('Resposta da Api: $corpoResposta');
 
         //print(resposta);//verificar erros
 
@@ -80,39 +86,49 @@ class NoticiaService {
     required String resumo,
     required String conteudo,
     required int categoriaId,
+    required bool ativo,
+
     File? imagemArquivo,
   }) async {
     try {
       final token = await _loginServices.getToken();
-      if (imagemArquivo != null) {
-        final request = http.MultipartRequest(
-          'POST',
-          Uri.parse("$baseUrl/noticias/$id"),
-        ); // usaremos esse multipart pq ele permite anexar arquivos
 
-        request.headers['Accept'] = 'application/json';
-        request.headers['Authorization'] = 'bearer $token';
-        request.fields['_method'] =
-            'PUT'; //adicionamos o metodo porque na rota da api usamos o método put para adicionar a noticia
-        request.fields['titulo'] =
-            titulo; //nomes precisam ser iguais ao nomes que estão no laravel
-        request.fields['resumo'] = resumo;
-        request.fields['conteudo'] = conteudo;
-        request.fields['categoria_id'] = categoriaId.toString();
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse("$baseUrl/noticias/$id"),
+      ); // usaremos esse multipart pq ele permite anexar arquivos
+
+      request.headers['Accept'] = 'application/json';
+      request.headers['Authorization'] = 'bearer $token';
+      request.fields['_method'] =
+          'PUT'; //adicionamos o metodo porque na rota da api usamos o método put para adicionar a noticia
+      request.fields['titulo'] =
+          titulo; //nomes precisam ser iguais ao nomes que estão no laravel
+      request.fields['resumo'] = resumo;
+      request.fields['conteudo'] = conteudo;
+      request.fields['categoria_id'] = categoriaId.toString();
+      request.fields['ativo'] = ativo ? '1' : '0';
+
+      //request fields['ativo'] = ativo;
+
+      if (imagemArquivo != null) {
         request.files.add(
           await http.MultipartFile.fromPath('imagem', imagemArquivo.path),
         );
-        //request fields['ativo'] = ativo;
+      }
 
-        final resposta = await request
-            .send(); //enviar para a API, manda lá para o laravel
+      final resposta = await request
+          .send(); //enviar para a API, manda lá para o laravel
 
-        //print(resposta);//verificar erros
+      //print(resposta);//verificar erros
 
-        if (resposta.statusCode != 200 && resposta.statusCode != 201) {
-          throw Exception("Todos os campos são obrigatórios");
-        }
-      } else {
+      final corpoResposta = await resposta.stream
+          .bytesToString(); // bytesToString converte os caracteres em texto
+
+      print('Status: ${resposta.statusCode}');
+      print('Resposta da Api: $corpoResposta');
+
+      if (resposta.statusCode != 200 && resposta.statusCode != 201) {
         throw Exception("Todos os campos são obrigatórios");
       }
     } catch (e) {
@@ -120,5 +136,23 @@ class NoticiaService {
     }
   }
 
-  Future<void> excluirNoticia() async {}
+  Future<void> excluirNoticia(int id) async {
+    try {
+      final token = await _loginServices.getToken();
+
+      final resposta = await http.delete(
+        Uri.parse('$baseUrl/noticias/$id'),
+        headers: {
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (resposta.statusCode != 200 && resposta.statusCode != 204) {
+        throw Exception("Não foi Possível excluir a notícia.");
+      }
+    } catch (e) {
+      throw Exception('$e');
+    }
+  }
 }

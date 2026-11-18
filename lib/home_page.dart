@@ -237,6 +237,7 @@ class _HomePageState extends State<HomePage> {
                 return ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: noticias.length,
+
                   itemBuilder: (context, index) {
                     final noticia = noticias[index];
                     return InkWell(

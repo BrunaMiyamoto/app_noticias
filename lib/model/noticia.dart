@@ -6,6 +6,7 @@ class Noticia {
   final String?
   imagem; // ponto de interrogação diz que o atributo pode ser nulo
   final int categoriaId; //onde tinha um underline substituimos por camel case
+  final int ativo;
   final String categoriaNome;
   final DateTime createdAt;
 
@@ -16,6 +17,7 @@ class Noticia {
     required this.conteudo,
     this.imagem,
     required this.categoriaId,
+    required this.ativo,
     required this.categoriaNome,
     required this.createdAt,
   }); //criamos um cronstrutor e os erros que apareciam nas variaveis não inicializadas somem.
@@ -28,6 +30,7 @@ class Noticia {
       resumo: json["resumo"],
       conteudo: json["conteudo"],
       categoriaId: json["categoria_id"],
+      ativo: json["ativo"],
       categoriaNome: json["categoria_nome"],
       imagem: json["imagem"],
       createdAt: DateTime.parse(json["created_at"]),
